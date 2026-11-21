@@ -1,0 +1,17 @@
+# 虚拟环境
+venv/
+env/
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+
+# 数据库文件（本地测试数据不上传）
+*.db
+*.sqlite3
+
+# 敏感配置文件（绝对不要传授权码和API Key！）
+.env
+
+# 系统文件
+.DS_Store
