@@ -1,22 +1,27 @@
 // frontend/js/app.js
 
-const { createApp, ref, onMounted } = Vue;
+const { createApp, ref, onMounted, nextTick } = Vue;
 
 createApp({
     setup() {
         const tasks = ref([]);
         const loading = ref(true);
-        const currentTab = ref('candidates'); // 'candidates' 或 'board'
+        const currentTab = ref('candidates');
 
-        // 改写弹窗控制
+        // 改写弹窗
         const showEditModal = ref(false);
         const editingTask = ref({ id: null, title: '', deadline: '' });
 
-        // 配置弹窗控制
+        // 配置弹窗
         const showConfigModal = ref(false);
         const configInfo = ref({ masked_email: '加载中...' });
 
-        // 获取数据
+        // 聊天窗口
+        const showChat = ref(false);
+        const chatInput = ref('');
+        const chatLoading = ref(false);
+        const chatHistory = ref([]);
+
         const fetchTasks = async () => {
             loading.value = true;
             try {
@@ -32,7 +37,6 @@ createApp({
             }
         };
 
-        // 确认任务
         const confirmTask = async (id) => {
             try {
                 await confirmTaskById(id);
@@ -40,7 +44,6 @@ createApp({
             } catch (e) { alert('操作失败'); }
         };
 
-        // 标记完成
         const completeTask = async (id) => {
             try {
                 await completeTaskById(id);
@@ -48,7 +51,6 @@ createApp({
             } catch (e) { alert('操作失败'); }
         };
 
-        // 删除任务
         const deleteTask = async (id) => {
             if (!confirm('确定要忽略/删除这个任务吗？')) return;
             try {
@@ -57,7 +59,6 @@ createApp({
             } catch (e) { alert('删除失败'); }
         };
 
-        // 打开改写弹窗
         const openEditModal = (task) => {
             let formattedDeadline = '';
             if (task.deadline) {
@@ -69,7 +70,6 @@ createApp({
             showEditModal.value = true;
         };
 
-        // 提交改写
         const submitEdit = async () => {
             try {
                 const updateData = { title: editingTask.value.title };
@@ -82,18 +82,51 @@ createApp({
             } catch (error) { alert('改写失败'); }
         };
 
-        // 打开配置弹窗
         const openConfigModal = async () => {
             showConfigModal.value = true;
             try {
                 const res = await fetch('http://127.0.0.1:8000/api/v1/settings/');
                 configInfo.value = await res.json();
             } catch (e) {
-                configInfo.value = { masked_email: '获取失败，请检查后端是否启动' };
+                configInfo.value = { masked_email: '获取失败，请检查后端' };
             }
         };
 
-        // 格式化时间
+        // 发送聊天消息
+        const sendChat = async () => {
+            if (!chatInput.value.trim()) return;
+
+            const userMsg = chatInput.value;
+            chatHistory.value.push({ role: 'user', content: userMsg });
+            chatInput.value = '';
+            chatLoading.value = true;
+
+            // 自动滚动到底部
+            nextTick(() => {
+                const box = document.getElementById('chat-box');
+                if (box) box.scrollTop = box.scrollHeight;
+            });
+
+            try {
+                const res = await sendChatMessage(userMsg);
+                chatHistory.value.push({ role: 'ai', content: res.reply });
+
+                // 如果 AI 成功提取了任务，自动刷新后台看板数据
+                if (res.has_task) {
+                    fetchTasks();
+                }
+            } catch (error) {
+                chatHistory.value.push({ role: 'ai', content: '网络出小差了，请稍后再试。' });
+            } finally {
+                chatLoading.value = false;
+                // 再次滚动到底部
+                nextTick(() => {
+                    const box = document.getElementById('chat-box');
+                    if (box) box.scrollTop = box.scrollHeight;
+                });
+            }
+        };
+
         const formatDate = (dateString) => {
             if (!dateString) return '';
             const d = new Date(dateString);
@@ -102,12 +135,9 @@ createApp({
             const day = d.getDate().toString().padStart(2, '0');
             const hours = d.getHours().toString().padStart(2, '0');
             const minutes = d.getMinutes().toString().padStart(2, '0');
-
-            // 返回格式：2026-11-21 15:30
             return `${year}-${month}-${day} ${hours}:${minutes}`;
         };
 
-        // 页面加载时请求数据
         onMounted(() => {
             fetchTasks();
         });
@@ -115,7 +145,8 @@ createApp({
         return {
             tasks, loading, currentTab, fetchTasks, confirmTask, deleteTask, completeTask,
             formatDate, showEditModal, editingTask, openEditModal, submitEdit,
-            showConfigModal, configInfo, openConfigModal
+            showConfigModal, configInfo, openConfigModal,
+            showChat, chatInput, chatLoading, chatHistory, sendChat
         };
     }
 }).mount('#app');

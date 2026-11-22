@@ -27,31 +27,23 @@
                     </div>
                 </div>
 
-                <!-- 按钮组 -->
                 <div class="flex gap-2">
                     <button @click="openConfigModal"
-                        class="bg-gray-50 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition">
-                        ⚙️ 邮箱配置
-                    </button>
+                        class="bg-gray-50 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition">⚙️
+                        邮箱配置</button>
                     <button @click="fetchTasks"
-                        class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
-                        🔄 刷新
-                    </button>
+                        class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition">🔄
+                        刷新</button>
                 </div>
             </div>
 
-            <!-- Tab 切换 -->
             <div class="flex gap-2 bg-gray-100 p-1 rounded-lg w-fit">
                 <button @click="currentTab = 'candidates'; fetchTasks()"
                     :class="{'bg-white shadow-sm text-blue-600': currentTab === 'candidates', 'text-gray-500': currentTab !== 'candidates'}"
-                    class="px-4 py-1.5 rounded-md text-sm font-medium transition">
-                    智能收件箱
-                </button>
+                    class="px-4 py-1.5 rounded-md text-sm font-medium transition">智能收件箱</button>
                 <button @click="currentTab = 'board'; fetchTasks()"
                     :class="{'bg-white shadow-sm text-blue-600': currentTab === 'board', 'text-gray-500': currentTab !== 'board'}"
-                    class="px-4 py-1.5 rounded-md text-sm font-medium transition">
-                    任务看板
-                </button>
+                    class="px-4 py-1.5 rounded-md text-sm font-medium transition">任务看板</button>
             </div>
         </header>
 
@@ -67,40 +59,30 @@
         <div v-else class="space-y-4">
             <div v-for="task in tasks" :key="task.id"
                 class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <!-- 任务头部 -->
                 <div class="flex justify-between items-start mb-2">
                     <h2 class="text-lg font-bold text-gray-800 flex-1 pr-4">{{ currentTab === 'candidates' ? '✨' : '📌'
                         }} {{ task.title }}</h2>
                     <span v-if="currentTab === 'candidates'"
-                        class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-md font-medium whitespace-nowrap">
-                        置信度: {{ (task.confidence * 100).toFixed(0) }}%
-                    </span>
+                        class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-md font-medium whitespace-nowrap">置信度:
+                        {{ (task.confidence * 100).toFixed(0) }}%</span>
                 </div>
 
                 <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ task.description || '无详细描述' }}</p>
 
-                <!-- 标签区：包含邮件收件时间 -->
                 <div class="flex flex-wrap gap-2 text-xs text-gray-500 mb-5">
-                    <span class="bg-gray-100 px-2 py-1 rounded">来源邮件ID: {{ task.source_msg_id }}</span>
-
-                    <!-- 新增：邮件接收时间 -->
-                    <span v-if="task.source_msg_time" class="bg-blue-50 text-blue-600 px-2 py-1 rounded">
-                        📩 收件时间: {{ formatDate(task.source_msg_time) }}
-                    </span>
-
-                    <!-- 截止时间 -->
+                    <span class="bg-gray-100 px-2 py-1 rounded">来源ID: {{ task.source_msg_id || '手动添加' }}</span>
+                    <span v-if="task.source_msg_time" class="bg-blue-50 text-blue-600 px-2 py-1 rounded">📩 收件: {{
+                        formatDate(task.source_msg_time) }}</span>
                     <span v-if="task.deadline" class="bg-orange-100 text-orange-700 px-2 py-1 rounded">⏰ 截止: {{
                         formatDate(task.deadline) }}</span>
                     <span v-else class="bg-gray-100 px-2 py-1 rounded">无截止时间</span>
                 </div>
 
-                <!-- 操作按钮区 -->
                 <div class="flex gap-3 pt-4 border-t border-gray-50">
                     <template v-if="currentTab === 'candidates'">
                         <button @click="confirmTask(task.id)"
-                            class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition">
-                            ✅ 确认加入看板
-                        </button>
+                            class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition">✅
+                            确认加入看板</button>
                         <button @click="openEditModal(task)"
                             class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg font-medium hover:bg-gray-200 transition">✏️
                             改写</button>
@@ -108,12 +90,10 @@
                             class="px-4 py-2 text-red-600 bg-red-50 rounded-lg font-medium hover:bg-red-100 transition">🗑️
                             忽略</button>
                     </template>
-
                     <template v-else>
                         <button @click="completeTask(task.id)"
-                            class="flex-1 bg-green-500 text-white py-2 rounded-lg font-medium hover:bg-green-600 transition">
-                            🎉 标记为已完成
-                        </button>
+                            class="flex-1 bg-green-500 text-white py-2 rounded-lg font-medium hover:bg-green-600 transition">🎉
+                            标记完成</button>
                         <button @click="deleteTask(task.id)"
                             class="px-4 py-2 text-red-600 bg-red-50 rounded-lg font-medium hover:bg-red-100 transition">🗑️
                             删除</button>
@@ -122,55 +102,87 @@
             </div>
         </div>
 
-        <!-- 改写弹窗 (Modal) -->
+        <!-- 改写弹窗 -->
         <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">✏️ 人工改写任务</h3>
-
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-1">任务标题</label>
                     <input v-model="editingTask.title" type="text"
                         class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
-
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-1">截止时间 (选填)</label>
                     <input v-model="editingTask.deadline" type="datetime-local"
                         class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
-
                 <div class="flex justify-end gap-3">
                     <button @click="showEditModal = false"
-                        class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
-                        取消
-                    </button>
+                        class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                     <button @click="submitEdit"
-                        class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-                        保存修改
-                    </button>
+                        class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">保存修改</button>
                 </div>
             </div>
         </div>
 
-        <!-- 邮箱配置弹窗 -->
+        <!-- 配置弹窗 -->
         <div v-if="showConfigModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">⚙️ 邮箱接入配置</h3>
-
                 <div class="bg-blue-50 text-blue-700 p-4 rounded-lg text-sm mb-6 leading-relaxed">
                     <p class="mb-2">当前绑定的账号：<strong>{{ configInfo.masked_email }}</strong></p>
                     <p>为了保障您的账号安全，第三方应用无法直接获取您的登录密码。请前往 QQ 邮箱后台开启 IMAP 服务，并获取 16 位授权码填入本地 <code>.env</code> 文件。</p>
                 </div>
-
                 <a href="https://service.mail.qq.com/detail/0/75" target="_blank"
-                    class="block w-full text-center bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition mb-3">
-                    🚀 点击前往 QQ 邮箱开启 IMAP 服务
-                </a>
-
-                <button @click="showConfigModal = false" class="w-full text-gray-500 text-sm py-2 hover:text-gray-700">
-                    我知道了
-                </button>
+                    class="block w-full text-center bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition mb-3">🚀
+                    前往 QQ 邮箱开启</a>
+                <button @click="showConfigModal = false"
+                    class="w-full text-gray-500 text-sm py-2 hover:text-gray-700">我知道了</button>
             </div>
+        </div>
+
+        <!-- === 新增：悬浮聊天窗口 === -->
+        <div class="fixed bottom-6 right-6 z-50">
+            <!-- 聊天面板 -->
+            <div v-if="showChat"
+                class="bg-white w-80 h-96 rounded-2xl shadow-2xl flex flex-col border border-gray-100 mb-4 overflow-hidden">
+                <div class="bg-blue-600 text-white p-3 flex justify-between items-center">
+                    <span class="font-bold">🤖 AI 任务助手</span>
+                    <button @click="showChat = false"
+                        class="text-white hover:text-gray-200 text-xl leading-none">&times;</button>
+                </div>
+
+                <div class="flex-1 p-3 overflow-y-auto space-y-3 bg-gray-50" id="chat-box">
+                    <div class="text-xs text-center text-gray-400">你可以直接对我说：“明天下午3点交报告”</div>
+                    <div v-for="(msg, index) in chatHistory" :key="index"
+                        :class="msg.role === 'user' ? 'text-right' : 'text-left'">
+                        <span
+                            :class="msg.role === 'user' ? 'bg-blue-500 text-white' : 'bg-white text-gray-800 border border-gray-200'"
+                            class="inline-block px-3 py-2 rounded-lg text-sm max-w-[85%] shadow-sm">
+                            {{ msg.content }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="p-2 border-t bg-white flex gap-2">
+                    <input v-model="chatInput" @keyup.enter="sendChat" type="text" placeholder="输入任务内容..."
+                        class="flex-1 border border-gray-300 rounded-lg px-3 py-1 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <button @click="sendChat" :disabled="chatLoading"
+                        class="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm disabled:bg-gray-400">
+                        {{ chatLoading ? '...' : '发送' }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- 悬浮按钮 -->
+            <button @click="showChat = !showChat"
+                class="bg-blue-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+            </button>
         </div>
 
     </div>

@@ -48,7 +48,7 @@ ai-task-memory/
 └── README.md               # 项目说明文档
 ```
 
-## 🚀 快速开始 (Quick Start)
+##  快速开始 (Quick Start)
 
 ### 1. 环境准备
 
