@@ -8,12 +8,18 @@ from app.schemas.task_schema import TaskUpdate
 
 def get_tasks_by_status(db: Session, user_id: int, status: str) -> List[Task]:
     """获取指定状态的任务列表"""
-    return (
+    tasks = (
         db.query(Task)
         .filter(Task.user_id == user_id, Task.status == status)
         .order_by(Task.created_at.desc())
         .all()
     )
+    # 遍历任务，手动把来源邮件的接收时间挂载到任务对象上
+    for task in tasks:
+        if task.source_message:
+            # 动态给 task 对象增加一个属性
+            task.source_msg_time = task.source_message.msg_time
+    return tasks
 
 
 def update_task_status(

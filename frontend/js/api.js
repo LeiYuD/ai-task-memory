@@ -9,12 +9,37 @@ async function getCandidates() {
     return await response.json();
 }
 
-// 确认任务
+// 获取看板任务 (进行中)
+async function getBoardTasks() {
+    const response = await fetch(`${BASE_URL}/tasks/?status=IN_PROGRESS`);
+    if (!response.ok) throw new Error('获取看板失败');
+    return await response.json();
+}
+
+// 确认任务 (加入看板)
 async function confirmTaskById(id) {
     const response = await fetch(`${BASE_URL}/tasks/${id}/confirm`, {
         method: 'POST'
     });
     if (!response.ok) throw new Error('确认任务失败');
+    return await response.json();
+}
+
+// 标记任务完成
+async function completeTaskById(id) {
+    const response = await fetch(`${BASE_URL}/tasks/${id}/complete`, {
+        method: 'POST'
+    });
+    if (!response.ok) throw new Error('标记完成失败');
+    return await response.json();
+}
+
+// 删除/忽略任务
+async function deleteTaskById(id) {
+    const response = await fetch(`${BASE_URL}/tasks/${id}`, {
+        method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('删除失败');
     return await response.json();
 }
 

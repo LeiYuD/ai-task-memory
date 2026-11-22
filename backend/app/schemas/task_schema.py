@@ -43,6 +43,6 @@ class TaskResponse(TaskBase):
     source_msg_id: Optional[int]
     confidence: float
     created_at: datetime
-
+    source_msg_time: Optional[datetime] = None
     # 允许从 SQLAlchemy 模型对象直接转为 Pydantic 模型
     model_config = {"from_attributes": True}
